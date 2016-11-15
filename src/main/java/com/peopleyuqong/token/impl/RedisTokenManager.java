@@ -1,9 +1,15 @@
 package com.peopleyuqong.token.impl;
 
 import com.peopleyuqong.bean.Token;
+import com.peopleyuqong.bean.User;
 import com.peopleyuqong.redis.RedisPool;
+import com.peopleyuqong.service.User.IUserService;
+import com.peopleyuqong.service.User.UserServiceImpl;
 import com.peopleyuqong.token.TokenManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -12,6 +18,8 @@ import java.util.UUID;
 public class RedisTokenManager implements TokenManager {
 
 	private RedisPool pool = new RedisPool();
+
+	private IUserService userService = new UserServiceImpl();
 
 	/**
 	 * 生成token
@@ -22,6 +30,8 @@ public class RedisTokenManager implements TokenManager {
 	 */
 	@Override
 	public Token createToken(String userName, String proKey) throws Exception {
+		//验证用户是否到期
+		checkPermission(userName, proKey);
 		//使用uuid作为原token
 		String token = UUID.randomUUID().toString().replace("-", "");
 		Token t = new Token(userName, proKey, token);
@@ -36,6 +46,16 @@ public class RedisTokenManager implements TokenManager {
 		return t;
 	}
 
+	private void checkPermission(String userName, String proKey) throws Exception {
+		User user = null;
+		user = userService.find(userName, proKey);
+		if (user == null) {
+			throw new Exception("用户无访问权限，请联系管理员");
+		} else if (user.getEnd().before(new Date())) {
+			throw new Exception("用户权限已经过期");
+		}
+	}
+
 	/**
 	 * 检查token是否存在
 	 * @param token
@@ -44,6 +64,7 @@ public class RedisTokenManager implements TokenManager {
 	 */
 	@Override
 	public boolean checkToken(Token token) throws Exception {
+		checkPermission(token.getUserName(), token.getProKey());
 		boolean result = false;
 		if (token != null) {
 			String tokenValue = null;
@@ -89,9 +110,19 @@ public class RedisTokenManager implements TokenManager {
 		pool.delete(userName + proKey);
 	}
 
+	public IUserService getUserService() {
+		return userService;
+	}
+
+	public void setUserService(IUserService userService) {
+		this.userService = userService;
+	}
+
 	public static void main(String[] args) throws Exception {
 		RedisTokenManager manager = new RedisTokenManager();
 		Token token = manager.createToken("test", "redis");
 		System.out.println("token: " + token.getToken());
 	}
+
+
 }

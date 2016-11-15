@@ -12,17 +12,17 @@ public class RedisPool {
 
 	private static JedisPool pool = null;
 	//连接池的最大redis实例数，-1为不限制
-	private static int MAXACTIVE = Integer.parseInt(ReadConfigUtil.getValue("maxactive"));
+	private static int MAXACTIVE = Integer.parseInt(ReadConfigUtil.getValue("redis.maxTotal"));
 	//最多空闲的redis实例
-	private static int MAXIDLE = Integer.parseInt(ReadConfigUtil.getValue("maxidle"));
+	private static int MAXIDLE = Integer.parseInt(ReadConfigUtil.getValue("redis.maxIdle"));
 	//获取redis实例的最大的超时时间
-	private static int MAXWAITE = Integer.parseInt(ReadConfigUtil.getValue("maxwaite"));
+	private static int MAXWAITE = Integer.parseInt(ReadConfigUtil.getValue("redis.maxWait"));
 	//redis主机
-	private static String HOST = ReadConfigUtil.getValue("host");
+	private static String HOST = ReadConfigUtil.getValue("redis.host");
 	//redis端口
-	private static int PORT = Integer.parseInt(ReadConfigUtil.getValue("port"));
+	private static int PORT = Integer.parseInt(ReadConfigUtil.getValue("redis.port"));
     //key的存活时间
-    private static int LIVETIME = Integer.parseInt(ReadConfigUtil.getValue("livetime"));
+    private static int LIVETIME = Integer.parseInt(ReadConfigUtil.getValue("redis.livetime"));
 
 	public RedisPool() {}
 

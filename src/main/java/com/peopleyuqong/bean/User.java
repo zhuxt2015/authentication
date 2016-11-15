@@ -7,22 +7,20 @@ import java.util.Date;
  */
 public class User {
 
-	private int id;
+	//用户名
 	private String username;
+	//项目代码
 	private String prokey;
+	//访问频次
 	private int frequency;
+	//是否有访问权限
 	private boolean visit;
+	//权限开启时间
 	private Date start;
+	//权限结束时间
 	private Date end;
+    //权限开启天数
 	private int tenancy;
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
 
 	public String getUsername() {
 		return username;

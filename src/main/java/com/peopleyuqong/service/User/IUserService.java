@@ -1,16 +1,15 @@
-package com.peopleyuqong.dao.User;
+package com.peopleyuqong.service.User;
 
 import com.peopleyuqong.bean.User;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /**
- * Created by zhuxt on 2016/11/14.
+ * Created by zhuxt on 2016/11/15.
  */
-public interface IUserDAO {
+public interface IUserService {
 
-	void insert(User user);
+	void save(User user);
 
 	void update(User user);
 
@@ -19,6 +18,4 @@ public interface IUserDAO {
 	User find(String username, String prokey);
 
 	List<User> list();
-
-
 }

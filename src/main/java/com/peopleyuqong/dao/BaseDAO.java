@@ -11,7 +11,6 @@ import java.sql.SQLException;
  */
 public class BaseDAO {
 
-	@Autowired
 	private DruidDataSource dataSource;
 
 	public DruidDataSource getDataSource() {
