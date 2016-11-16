@@ -1,5 +1,5 @@
-<%@ page import="com.peopleyuqong.bean.Token" %>
-<%@ page import="com.peopleyuqong.token.impl.RedisTokenManager" %>
+<%@ page import="com.peopleyuqing.bean.Token" %>
+<%@ page import="com.peopleyuqing.token.impl.RedisTokenManager" %>
 <%--
   Created by IntelliJ IDEA.
   User: zhuxt
