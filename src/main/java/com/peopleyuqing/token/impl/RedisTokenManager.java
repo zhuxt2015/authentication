@@ -20,12 +20,13 @@ import java.util.UUID;
 /**
  * Created by zhuxt on 2016/11/10.
  */
-@Component
+@Repository
 public class RedisTokenManager implements TokenManager {
 
 	private static final Logger log = LoggerFactory.getLogger(RedisTokenManager.class);
 
-	private RedisPool pool = new RedisPool();
+	@Autowired
+	private RedisPool pool;
 
 	@Autowired
 	public IUserService userService;
@@ -43,21 +44,14 @@ public class RedisTokenManager implements TokenManager {
 	 */
 	@Override
 	public String createToken(String userName, String proKey) throws Exception {
-
-		log.info(userName);
-		log.info(proKey);
 		//验证用户是否到期
 		checkPermission(userName, proKey);
 		//使用uuid作为原token
 		String token = UUID.randomUUID().toString().replace("-", "");
-		/*Token t = new Token();
-		t.setUserName(userName);
-		t.setProKey(proKey);
-		t.setToken(token);*/
-		StringBuilder key = new StringBuilder(userName).append(proKey);
+		String key = getKey(userName, proKey);
 		//redis存储token
 		try {
-			pool.set(key.toString(), token);
+			pool.set(key, token);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception("创建token失败: " + e.getMessage());
@@ -67,13 +61,18 @@ public class RedisTokenManager implements TokenManager {
 
 	private void checkPermission(String userName, String proKey) throws Exception {
 		User user = null;
-		log.info(userService + "");
 		user = userService.find(userName, proKey);
 		if (user == null) {
 			throw new Exception("用户无访问权限，请联系管理员");
 		} else if (user.getEnd().before(new Date())) {
 			throw new Exception("用户权限已经过期");
 		}
+	}
+
+	private String getKey(String username, String prokey) {
+		//generate redis key
+		StringBuilder key = new StringBuilder(username).append("@").append(prokey);
+		return String.valueOf(key);
 	}
 
 	/**
@@ -88,8 +87,7 @@ public class RedisTokenManager implements TokenManager {
 		boolean result = false;
 		if (token != null) {
 			String tokenValue = null;
-			String key = token.getUserName() + token.getProKey();
-			System.out.println("key: " + key);
+			String key = getKey(token.getUserName(), token.getProKey());
 			try {
 				tokenValue = pool.getValue(key);
 			} catch (Exception e) {
@@ -98,7 +96,7 @@ public class RedisTokenManager implements TokenManager {
 			}
 			if (tokenValue != null && tokenValue.equals(token.getToken())) {
 				//重新设置key value，重新计算存活时间
-				pool.set(key, tokenValue);
+				pool.expire(key);
 				result = true;
 			}
 		}
@@ -129,12 +127,5 @@ public class RedisTokenManager implements TokenManager {
 	public void deleteToken(String userName, String proKey) throws Exception {
 		pool.delete(userName + proKey);
 	}
-
-
-	/*public static void main(String[] args) throws Exception {
-		RedisTokenManager manager = new RedisTokenManager();
-		Token token = manager.createToken("test", "redis");
-		System.out.println("token: " + token.getToken());
-	}*/
 
 }

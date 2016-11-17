@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Created by zhuxt on 2016/11/15.
  */
-@Component("userService")
+@Repository
 //@Transactional
 public class UserServiceImpl implements IUserService {
 
@@ -26,10 +26,6 @@ public class UserServiceImpl implements IUserService {
 		System.out.println(" UserServiceImpl init-------------");
 		this.userDAO = new UserDAOImpl();
 	}*/
-
-	public UserServiceImpl() {
-		System.out.println("UserServiceImpl constructure------------------");
-	}
 
 	@Override
 	public void save(User user) {
@@ -79,16 +75,6 @@ public class UserServiceImpl implements IUserService {
 		return userDAO.list();
 	}
 
-	/*public IUserDAO getUserDAO() {
-		return userDAO;
-	}
-
-	@Autowired
-	public void setUserDAO(IUserDAO userDAO) {
-		System.out.println("set userdao----------------------");
-		this.userDAO = userDAO;
-		System.out.println(this.userDAO);
-	}*/
 
 	public static void main(String[] args) {
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");

@@ -20,8 +20,8 @@ import java.util.List;
 /**
  * Created by zhuxt on 2016/11/14.
  */
-//@Repository
-@Component("userDAO")
+@Repository
+//@Component("userDAO")
 public class UserDAOImpl extends JdbcDaoSupport implements IUserDAO {
 
 	private static final Logger log = LoggerFactory.getLogger(UserDAOImpl.class);
