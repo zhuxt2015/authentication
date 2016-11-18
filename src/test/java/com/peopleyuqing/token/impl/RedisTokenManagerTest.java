@@ -27,7 +27,10 @@ public class RedisTokenManagerTest {
 
 	@Test
 	public void testCreateToken() throws Exception {
-//		manager.createToken("insert", "test");
+		String token = null;
+		token = manager.createToken("test", "test");
+		System.out.println(token + " len: " + token.length());
+		assertNotNull(token);
 	}
 
 	@Test

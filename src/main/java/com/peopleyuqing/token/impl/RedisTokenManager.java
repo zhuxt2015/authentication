@@ -31,10 +31,6 @@ public class RedisTokenManager implements TokenManager {
 	@Autowired
 	public IUserService userService;
 
-	static {
-		log.info("RedisTokenManager init------------------");
-	}
-
 	/**
 	 * 生成token
 	 * @param userName
@@ -96,7 +92,7 @@ public class RedisTokenManager implements TokenManager {
 			}
 			if (tokenValue != null && tokenValue.equals(token.getToken())) {
 				//重新设置key value，重新计算存活时间
-				pool.expire(key);
+				pool.set(key,tokenValue);
 				result = true;
 			}
 		}
@@ -127,5 +123,5 @@ public class RedisTokenManager implements TokenManager {
 	public void deleteToken(String userName, String proKey) throws Exception {
 		pool.delete(userName + proKey);
 	}
-
+	
 }

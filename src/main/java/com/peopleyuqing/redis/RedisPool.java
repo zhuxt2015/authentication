@@ -1,18 +1,20 @@
 package com.peopleyuqing.redis;
 
+import cn.peopleyuqing.builder.ClientBuilder;
 import com.peopleyuqing.utils.ReadConfigUtil;
-import com.sun.xml.internal.ws.api.message.ExceptionHasMessage;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.stereotype.Repository;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisCluster;
 
 /**
  * Created by zhuxt on 2016/11/10.
  */
 @Repository
 public class RedisPool {
-	private static JedisPool pool = null;
+	//	private static JedisPool pool = null;
+	private static JedisCluster redisCluster = null;
+	private static GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
+	private static long appId = 10051;
 
 	//连接池的最大redis实例数，-1为不限制
 	private static int MAXACTIVE = Integer.parseInt(ReadConfigUtil.getValue("redis.maxTotal"));
@@ -32,36 +34,38 @@ public class RedisPool {
 	private static int TIMEOUT = Integer.parseInt(ReadConfigUtil.getValue("pool.timeout"));
 
 	static {
-		JedisPoolConfig config = new JedisPoolConfig();
+		/*JedisPoolConfig config = new JedisPoolConfig();
 		config.setMaxTotal(MAXACTIVE);
 		config.setMaxIdle(MAXIDLE);
 		config.setMaxWaitMillis(MAXWAITE);
 		//保证提供的redis实例都是可用的
 		config.setTestOnBorrow(TEST);
 		config.setTimeBetweenEvictionRunsMillis(60000);
-		pool = new JedisPool(config, HOST, PORT, TIMEOUT);
+		pool = new JedisPool(config, HOST, PORT, TIMEOUT);*/
+
+		redisCluster = ClientBuilder.redisCluster(appId)
+				.setJedisPoolConfig(poolConfig)
+				//连接超时
+				.setConnectionTimeout(TIMEOUT)
+				//执行超时
+				.setSoTimeout(1000)
+				//节点定位重试的次数
+				.setMaxRedirections(5)
+				//连接的是武汉的redis集群
+				.build("wh");
+
 
 	}
 
-
-	public synchronized static Jedis getJedis() {
-		return pool.getResource();
-	}
-	public static String getValue(String key) throws Exception {
+	public String getValue(String key) throws Exception {
 		String value = null;
-		Jedis jedis = null;
 
 		if (null != key && !key.isEmpty()) {
 			try {
-				jedis = pool.getResource();
-				value = jedis.get(key);
+				value = redisCluster.get(key);
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new Exception("redis无法获取token" + e.getMessage());
-			} finally {
-				if (jedis != null) {
-					jedis.close();
-				}
 			}
 		}
 		return value;
@@ -74,58 +78,27 @@ public class RedisPool {
 	 * @param value
 	 * @return
 	 */
-	public static boolean set(String key, String value) throws Exception {
-		Jedis jedis = null;
+	public boolean set(String key, String value) throws Exception {
 		boolean result = false;
 		try {
-			jedis = pool.getResource();
-			jedis.set(key, value);
-			jedis.expire(key, LIVETIME);
+			redisCluster.setex(key,LIVETIME, value);
 			result = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception("redis无法存储token:" + e.getMessage());
-		} finally {
-			if (jedis != null) {
-				jedis.close();
-			}
 		}
 		return result;
 	}
 
-	/**
-	 * 延长存活时间
-	 * @param key
-	 * @throws Exception
-	 */
-	public static void expire(String key) throws Exception {
-		Jedis jedis = null;
-		try {
-			jedis = pool.getResource();
-			jedis.expire(key, LIVETIME);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new Exception("redis无法延长存活时间" + e.getMessage());
-		} finally {
-			if (jedis != null) {
-				jedis.close();
-			}
-		}
-	}
 
 
-	public static void delete(String key) throws Exception {
-		Jedis jedis = null;
+
+	public void delete(String key) throws Exception {
 		try {
-			jedis = pool.getResource();
-			jedis.del(key);
+			redisCluster.del(key);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception("redis 无法删除token" + e.getMessage());
-		} finally {
-			if (jedis != null) {
-				jedis.close();
-			}
 		}
 	}
 
@@ -140,7 +113,9 @@ public class RedisPool {
 //			e.printStackTrace();
 //		}
 //		System.out.println(System.currentTimeMillis() - start + "ms");
-		RedisPool.set("11", "测试");
-		System.out.println(RedisPool.getValue("11"));
+		long start = System.currentTimeMillis();
+		RedisPool.redisCluster.set("11", "aaaa");
+//		System.out.println(redisPool.getValue("11"));
+		System.out.println(System.currentTimeMillis() - start + "ms");
 	}
 }
