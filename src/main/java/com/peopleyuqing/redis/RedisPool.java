@@ -34,14 +34,13 @@ public class RedisPool {
 	private static int TIMEOUT = Integer.parseInt(ReadConfigUtil.getValue("pool.timeout"));
 
 	static {
-		/*JedisPoolConfig config = new JedisPoolConfig();
-		config.setMaxTotal(MAXACTIVE);
-		config.setMaxIdle(MAXIDLE);
-		config.setMaxWaitMillis(MAXWAITE);
+		poolConfig.setMaxTotal(MAXACTIVE);
+		poolConfig.setMaxIdle(MAXIDLE);
+		poolConfig.setMaxWaitMillis(MAXWAITE);
 		//保证提供的redis实例都是可用的
-		config.setTestOnBorrow(TEST);
-		config.setTimeBetweenEvictionRunsMillis(60000);
-		pool = new JedisPool(config, HOST, PORT, TIMEOUT);*/
+		poolConfig.setTestOnBorrow(TEST);
+		poolConfig.setTimeBetweenEvictionRunsMillis(60000);
+//		pool = new JedisPool(config, HOST, PORT, TIMEOUT);
 
 		redisCluster = ClientBuilder.redisCluster(appId)
 				.setJedisPoolConfig(poolConfig)
@@ -113,8 +112,9 @@ public class RedisPool {
 //			e.printStackTrace();
 //		}
 //		System.out.println(System.currentTimeMillis() - start + "ms");
+		RedisPool redisPool = new RedisPool();
 		long start = System.currentTimeMillis();
-		RedisPool.redisCluster.set("11", "aaaa");
+		redisPool.set("11", "aaaa");
 //		System.out.println(redisPool.getValue("11"));
 		System.out.println(System.currentTimeMillis() - start + "ms");
 	}

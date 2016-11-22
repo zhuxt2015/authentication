@@ -86,15 +86,18 @@ public class RedisTokenManager implements TokenManager {
 			String key = getKey(token.getUserName(), token.getProKey());
 			try {
 				tokenValue = pool.getValue(key);
+				if (tokenValue != null && tokenValue.equals(token.getToken())) {
+					result = true;
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new Exception("检查token失败: " + e.getMessage());
 			}
-			if (tokenValue != null && tokenValue.equals(token.getToken())) {
-				//重新设置key value，重新计算存活时间
-				pool.set(key,tokenValue);
-				result = true;
-			}
+//			if (tokenValue != null && tokenValue.equals(token.getToken())) {
+//				//重新设置key value，重新计算存活时间
+//				pool.set(key,tokenValue);
+//				result = true;
+//			}
 		}
 		return result;
 	}

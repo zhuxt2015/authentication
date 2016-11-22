@@ -26,7 +26,7 @@ public class TokenAction {
 	private RedisTokenManager manager;
 
 	@ResponseBody
-	@RequestMapping("/check")
+	@RequestMapping(value = "/check", produces = "application/json;charset=UTF-8")
 	public Map<String,Object> check(@RequestParam(value = "username") String username,
 	                 @RequestParam(value = "prokey") String prokey,
 	                 @RequestParam(value = "token") String token){
@@ -51,9 +51,9 @@ public class TokenAction {
 
 
 	@ResponseBody
-	@RequestMapping("/get")
+	@RequestMapping(value = "/get", produces = "application/json;charset=UTF-8")
 	public Token get(@RequestParam(value = "username") String username,
-	                      @RequestParam(value = "prokey") String prokey){
+	                 @RequestParam(value = "prokey") String prokey) {
 		Token token = new Token();
 		token.setUserName(username);
 		token.setProKey(prokey);

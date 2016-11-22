@@ -1,5 +1,6 @@
 package com.peopleyuqing.token.impl;
 
+import com.peopleyuqing.bean.Token;
 import com.peopleyuqing.token.TokenManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +36,18 @@ public class RedisTokenManagerTest {
 
 	@Test
 	public void testCheckToken() throws Exception {
-
+		String username = "test";
+		String prokey = "test";
+		String token = "a588265cf38840dd9e77d268a2db3057";
+		Token t = new Token();
+		t.setUserName(username);
+		t.setProKey(prokey);
+		t.setToken(token);
+		assertTrue(manager.checkToken(t));
+		t.setUserName(username);
+		t.setProKey(prokey);
+		t.setToken("a");
+		assertFalse(manager.checkToken(t));
 	}
 
 	@Test
